@@ -1,4 +1,4 @@
-// Gebruikersgegevens
+// Gebruikersgegevens (simulatie voor lokale opslag)
 let users = JSON.parse(localStorage.getItem('users')) || {
     'ABC123': { credits: 5 },
     'DEF456': { credits: 3 },

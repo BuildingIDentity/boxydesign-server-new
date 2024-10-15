@@ -1,0 +1,7 @@
+2024-10-14T16:34:04.993Z Error: The buildpack heroku/nodejs is already set on your app.
+2024-10-14T16:34:04.993Z     at Object.error (~/.local/share/heroku/client/9.3.0-65eb66a/node_modules/@oclif/core/lib/errors/index.js:27:15)
+2024-10-14T16:34:04.993Z     at BuildpackCommand.validateUrlNotSet (~/.local/share/heroku/client/9.3.0-65eb66a/lib/lib/buildpacks/buildpacks.js:73:23)
+2024-10-14T16:34:04.993Z     at async Set.run (~/.local/share/heroku/client/9.3.0-65eb66a/lib/commands/buildpacks/set.js:14:9)
+2024-10-14T16:34:04.993Z     at async Set._run (~/.local/share/heroku/client/9.3.0-65eb66a/node_modules/@oclif/core/lib/command.js:117:22)
+2024-10-14T16:34:04.993Z     at async Config.runCommand (~/.local/share/heroku/client/9.3.0-65eb66a/node_modules/@oclif/core/lib/config/config.js:314:25)
+2024-10-14T16:34:04.993Z     at async Object.run (~/.local/share/heroku/client/9.3.0-65eb66a/node_modules/@oclif/core/lib/main.js:89:16)
