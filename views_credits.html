@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Credits Beheer - Boxydesign</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #004d66;
+            text-align: center;
+        }
+        .admin-login, .admin-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="password"], input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 60%;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #004d66;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003d52;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Credits Beheer - Boxydesign</h1>
+
+        <!-- Admin Login -->
+        <div class="admin-login" id="adminLogin">
+            <h2>Admin Inloggen</h2>
+            <input type="text" id="adminUsername" placeholder="Gebruikersnaam">
+            <input type="password" id="adminPassword" placeholder="Wachtwoord">
+            <button onclick="adminLogin()">Inloggen</button>
+            <p id="adminLoginMessage"></p>
+        </div>
+
+        <!-- Admin Credits Beheer -->
+        <div class="admin-container" id="adminContainer" style="display: none;">
+            <h2>Update Gebruikerscredits</h2>
+            <label for="adminLicenseCode">Licentiecode:</label><br>
+            <input type="text" id="adminLicenseCode" placeholder="Licentiecode"><br>
+            <label for="newCredits">Nieuwe Credits:</label><br>
+            <input type="number" id="newCredits" placeholder="Aantal nieuwe credits"><br>
+            <button onclick="updateCredits()">Update Credits</button>
+            <p id="adminMessage"></p>
+        </div>
+    </div>
+
+    <script>
+        // Gebruikersgegevens
+        let users = JSON.parse(localStorage.getItem('users')) || {
+            'ABC123': { credits: 5 },
+            'DEF456': { credits: 3 },
+            'GHI789': { credits: 10 }
+        };
+
+        // Admin inloggegevens
+        const adminUsername = "peter@boxydesign.be";
+        const adminPassword = "@477Proximus";
+
+        // Admin login functie
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const message = document.getElementById('adminLoginMessage');
+
+            if (username === adminUsername && password === adminPassword) {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminContainer').style.display = 'block';
+            } else {
+                message.textContent = 'Ongeldige gebruikersnaam of wachtwoord.';
+            }
+        }
+
+        // Functie om credits bij te werken
+        function updateCredits() {
+            const licenseCode = document.getElementById('adminLicenseCode').value;
+            const newCredits = parseInt(document.getElementById('newCredits').value);
+            const message = document.getElementById('adminMessage');
+
+            if (users[licenseCode]) {
+                if (newCredits >= 0) {
+                    users[licenseCode].credits = newCredits;
+                    localStorage.setItem('users', JSON.stringify(users));
+                    message.textContent = `Credits voor licentie ${licenseCode} zijn bijgewerkt naar ${newCredits}.`;
+                } else {
+                    message.textContent = 'Voer een geldig aantal credits in.';
+                }
+            } else {
+                message.textContent = 'Ongeldige licentiecode.';
+            }
+        }
+    </script>
+</body>
+</html>

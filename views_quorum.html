@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxydesign Algemene Vergadering</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script> <!-- jsPDF voor PDF generatie -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+        .container {
+            width: 60%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #004d66;
+            text-align: center;
+        }
+        .licentie-form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 60%;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #004d66;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003d52;
+        }
+        .tool-container {
+            display: none;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #004d66;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Boxydesign Algemene Vergadering</h1>
+
+        <!-- Form voor de licentiecode -->
+        <div class="licentie-form">
+            <h2>Voer uw licentiecode in</h2>
+            <input type="text" id="licentiecode" placeholder="Licentiecode">
+            <button onclick="verifieerLicentie()">Verifieer Licentie</button>
+            <p id="message"></p>
+        </div>
+
+        <!-- Tool container (deze wordt zichtbaar na licentievalidatie) -->
+        <div class="tool-container" id="toolContainer">
+            <h2>Algemene Vergadering Tool</h2>
+            <p id="creditsInfo">Credits over: <span id="creditsCount"></span></p>
+
+            <!-- Hier begint de tool -->
+            <h3>VME Gegevens</h3>
+            <label for="vme">VME</label>
+            <input type="text" id="vme" placeholder="Vul de naam van de VME in">
+
+            <label for="vme-number">Nummer VME</label>
+            <input type="text" id="vme-number" placeholder="Vul het VME nummer in">
+
+            <label for="syndicus">Syndicus</label>
+            <input type="text" id="syndicus" placeholder="Vul de naam van de syndicus in">
+
+            <label for="date-time">Stempel Datum en Uur</label>
+            <input type="text" id="date-time" readonly>
+            <button onclick="setCurrentDateTime()">Zet Datum en Tijd</button>
+
+            <div class="input-section">
+                <label for="file-upload">Bestand kiezen</label>
+                <input type="file" id="file-upload" accept=".csv, .xlsx, .pdf">
+                <button onclick="processFile()">Verwerk Bestand</button>
+            </div>
+
+            <h3>Markeer Aanwezige Eigenaren</h3>
+            <table id="owner-table">
+                <thead>
+                    <tr>
+                        <th>Appartement</th>
+                        <th>Naam</th>
+                        <th>Aandelen</th>
+                        <th>Aanwezig</th>
+                    </tr>
+                </thead>
+                <tbody id="owner-list"></tbody>
+            </table>
+
+            <button onclick="calculateQuorum()">Bereken Quorum 1</button>
+            <button id="quorum2-button" onclick="calculateQuorum2()" style="display:none;">Bereken Quorum 2</button>
+            <button onclick="downloadCSV()">Download Aanwezige Eigenaars</button>
+
+            <h3>Gegevens Gebouw</h3>
+            <p>Aantal Eigenaars: <span id="total-owners">0</span></p>
+            <p>Totaal Aantal Aandelen: <span id="total-shares">0</span></p>
+
+            <h3>Resultaten</h3>
+            <div class="quorum" id="quorum1-results">
+                <h3>Quorum 1</h3>
+                <p>Aantal Aanwezigen: <span id="attendees-count">0</span></p>
+                <p>Totaal Aandelen Aanwezig: <span id="shares-count">0</span></p>
+                <p id="quorum1-status">Minimaal 50% van eigenaars en aandelen vereist.</p>
+            </div>
+
+            <div class="quorum" id="quorum2-results" style="display:none;">
+                <h3>Quorum 2</h3>
+                <p>Vereist: <span id="quorum2-requirement">0</span></p>
+                <p>Quorum Bereikt: <span id="quorum2-status"></span></p>
+                <p>Minimaal 75% van de totale aandelen vereist + 1.</p>
+            </div>
+
+            <button onclick="generatePDF()">Genereer PDF</button>
+        </div>
+    </div>
+
+    <script>
+        let users = JSON.parse(localStorage.getItem('users')) || {
+            'ABC123': { credits: 5 },
+            'DEF456': { credits: 3 },
+            'GHI789': { credits: 10 }
+        };
+        let currentUser = null;
+        let ownersData = [];
+
+        // Functie om de licentie te verifiëren en een credit af te trekken
+        function verifieerLicentie() {
+            const ingevoerdeLicentie = document.getElementById('licentiecode').value;
+            const message = document.getElementById('message');
+
+            if (users[ingevoerdeLicentie]) {
+                currentUser = users[ingevoerdeLicentie];
+                if (currentUser.credits > 0) {
+                    currentUser.credits--; // Trek een credit af bij geldige licentie
+                    localStorage.setItem('users', JSON.stringify(users));
+                    document.getElementById('message').textContent = "Licentie geldig. Nog " + currentUser.credits + " credits over.";
+                    document.getElementById('creditsCount').textContent = currentUser.credits;
+                    document.getElementById('toolContainer').style.display = 'block';
+                } else {
+                    document.getElementById('message').textContent = "Geen credits meer over. Neem contact op met Boxydesign voor extra credits.";
+                    document.getElementById('toolContainer').style.display = 'none';
+                }
+            } else {
+                document.getElementById('message').textContent = "Ongeldige licentie.";
+                document.getElementById('toolContainer').style.display = 'none';
+            }
+        }
+
+        function setCurrentDateTime() {
+            const now = new Date();
+            const dateTimeInput = document.getElementById('date-time');
+            const formattedDateTime = now.toISOString().slice(0, 16).replace('T', ' ');
+            dateTimeInput.value = formattedDateTime;
+        }
+
+        function processFile() {
+            const fileUpload = document.getElementById('file-upload').files[0];
+            if (!fileUpload) {
+                alert("Geen bestand geselecteerd.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+
+                // CSV regels opsplitsen en filteren op lege regels
+                const lines = text.split('\n').map(line => line.split(',')).filter(line => line.length > 1 && line[0].trim() !== "");
+
+                // Check of er data is
+                if (lines.length > 0) {
+                    ownersData = lines;
+                    generateOwnerTable(lines);
+                } else {
+                    alert("Geen gegevens gevonden in het bestand.");
+                }
+            };
+
+            reader.readAsText(fileUpload);
+        }
+
+        function generateOwnerTable(data) {
+            const ownerList = document.getElementById('owner-list');
+            ownerList.innerHTML = '';  // Leeg de lijst voor nieuwe data
+
+            const sortedData = data.slice(1).sort((a, b) => a[0].localeCompare(b[0]));
+
+            sortedData.forEach((line) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${line[0]}</td><td>${line[1]}</td><td>${line[2]}</td><td><input type="checkbox"></td>`;
+                ownerList.appendChild(row);
+            });
+
+            document.getElementById('total-owners').textContent = data.length - 1;
+            document.getElementById('total-shares').textContent = sortedData.reduce((sum, row) => sum + parseInt(row[2]), 0);
+        }
+
+        function calculateQuorum() {
+            const attendees = Array.from(document.querySelectorAll('#owner-list input[type="checkbox"]:checked'));
+            const totalShares = attendees.reduce((sum, checkbox) => {
+                const row = checkbox.closest('tr');
+                return sum + parseInt(row.children[2].textContent);
+            }, 0);
+
+            document.getElementById('attendees-count').textContent = attendees.length;
+            document.getElementById('shares-count').textContent = totalShares;
+
+            const totalOwners = parseInt(document.getElementById('total-owners').textContent);
+            const totalBuildingShares = parseInt(document.getElementById('total-shares').textContent);
+
+            if (attendees.length >= totalOwners / 2 && totalShares >= totalBuildingShares / 2) {
+                document.getElementById('quorum1-status').textContent = 'Quorum 1 behaald';
+                document.getElementById('quorum2-button').style.display = 'none';
+            } else {
+                document.getElementById('quorum1-status').textContent = 'Quorum 1 niet behaald';
+                document.getElementById('quorum2-button').style.display = 'inline-block';  // Knop zichtbaar maken
+            }
+        }
+
+        function calculateQuorum2() {
+            const totalBuildingShares = parseInt(document.getElementById('total-shares').textContent);
+            const requiredSharesForQuorum2 = Math.ceil(totalBuildingShares * 0.75) + 1;
+
+            document.getElementById('quorum2-requirement').textContent = requiredSharesForQuorum2;
+
+            const attendees = Array.from(document.querySelectorAll('#owner-list input[type="checkbox"]:checked'));
+            const totalSharesPresent = attendees.reduce((sum, checkbox) => {
+                const row = checkbox.closest('tr');
+                return sum + parseInt(row.children[2].textContent);
+            }, 0);
+
+            if (totalSharesPresent >= requiredSharesForQuorum2) {
+                document.getElementById('quorum2-status').textContent = 'Quorum 2 behaald';
+            } else {
+                document.getElementById('quorum2-status').textContent = 'Quorum 2 niet behaald';
+            }
+
+            document.getElementById('quorum2-results').style.display = 'block';
+        }
+
+        function downloadCSV() {
+            let csvContent = "data:text/csv;charset=utf-8," + ownersData.map(e => e.join(",")).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "aanwezige_eigenaren.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const vme = document.getElementById('vme').value;
+            const vmeNumber = document.getElementById('vme-number').value;
+            const syndicus = document.getElementById('syndicus').value;
+            const dateTime = document.getElementById('date-time').value;
+
+            const totalOwners = document.getElementById('total-owners').textContent;
+            const totalShares = document.getElementById('total-shares').textContent;
+            const attendeesCount = document.getElementById('attendees-count').textContent;
+            const sharesCount = document.getElementById('shares-count').textContent;
+            const quorum1Status = document.getElementById('quorum1-status').textContent;
+            const quorum2Status = document.getElementById('quorum2-status').textContent;
+
+            doc.setFontSize(12);
+            doc.text(`VME: ${vme}`, 10, 10);
+            doc.text(`Nummer VME: ${vmeNumber}`, 10, 20);
+            doc.text(`Syndicus: ${syndicus}`, 10, 30);
+            doc.text(`Stempeldatum en uur: ${dateTime}`, 10, 40);
+            doc.text(`Aantal eigenaars: ${totalOwners}`, 10, 50);
+            doc.text(`Totaal aantal aandelen: ${totalShares}`, 10, 60);
+            doc.text(`Aanwezige eigenaars: ${attendeesCount}`, 10, 70);
+            doc.text(`Aanwezig aantal aandelen: ${sharesCount}`, 10, 80);
+            doc.text(`Resultaat Quorum 1: ${quorum1Status}`, 10, 90);
+            if (quorum2Status) {
+                doc.text(`Resultaat Quorum 2: ${quorum2Status}`, 10, 100);
+            }
+            doc.text(`Gelezen en Goedgekeurd`, 10, 120);
+            doc.save('vergadering_resultaten.pdf');
+        }
+
+        function startStemming() {
+            window.location.href = "https://www.boxydesign.be/licentie/creditsf2stemming";
+        }
+    </script>
+</body>
+</html>

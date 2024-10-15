@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxydesign AV Stemming</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #004d66;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="file"] {
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #004d66;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003d52;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #004d66;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        .visible {
+            display: block;
+        }
+        .header-info, .agenda-section, .input-section, .license-section {
+            margin-bottom: 20px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Boxydesign Stemming op Agendapunten</h1>
+
+        <div class="license-section">
+            <h2>Licentiebeheer</h2>
+            <label>Licentiecode:</label>
+            <input type="password" id="license-code" placeholder="Voer licentiecode in">
+            <button id="toggle-visibility-btn" onclick="toggleLicenseVisibility()">????</button> <!-- Toggle knop -->
+            <button onclick="activateLicense()">Activeer Licentie</button>
+            <p id="license-status"></p> <!-- Dit element toont de licentiestatus -->
+        </div>
+
+        <div class="header-info hidden">
+            <label>Naam van het gebouw:</label>
+            <input type="text" id="building-name" placeholder="Vul de naam van het gebouw in">
+            <label>VME Nummer:</label>
+            <input type="text" id="vme-number" placeholder="Vul het VME-nummer in">
+            <label>Naam Voorzitter:</label>
+            <input type="text" id="chairman-name" placeholder="Naam voorzitter">
+            <label>Naam Secretaris:</label>
+            <input type="text" id="secretary-name" placeholder="Naam secretaris">
+        </div>
+
+        <div class="agenda-section hidden">
+            <h2>Agendapunten</h2>
+            <button onclick="addAgendaItem()">Voeg Agendapunt Toe</button>
+            <div id="agenda-items"></div>
+        </div>
+
+        <div class="input-section hidden">
+            <input type="file" id="file-upload" accept=".csv">
+            <button onclick="processFile()">Upload CSV</button>
+        </div>
+
+        <div class="table-section hidden" id="table-section">
+            <!-- Hier komt de tabel na het uploaden van het CSV-bestand -->
+        </div>
+
+        <div id="result-buttons" class="hidden">
+            <h2>Resultaten</h2>
+        </div>
+
+        <button onclick="generateFinalResult()" class="hidden" id="final-result-btn">Genereer Eindresultaat</button>
+
+        <script>
+            let agendaItems = [];
+            let users = JSON.parse(localStorage.getItem('users')) || {
+                'ABC123': { credits: 5 },
+                'DEF456': { credits: 3 },
+                'GHI789': { credits: 10 }
+            };
+            let currentUser = null;
+
+            function activateLicense() {
+                const licenseCode = document.getElementById('license-code').value;
+                if (users[licenseCode]) {
+                    currentUser = users[licenseCode];
+                    if (currentUser.credits > 0) {
+                        document.getElementById('license-status').textContent = 'Licentie geactiveerd. Nog ' + currentUser.credits + ' credits over.';
+                        enableToolFeatures();
+                    } else {
+                        document.getElementById('license-status').textContent = 'Geen credits meer over. Neem contact op met Boxydesign voor extra credits.';
+                    }
+                } else {
+                    document.getElementById('license-status').textContent = 'Ongeldige licentiecode.';
+                }
+            }
+
+            function toggleLicenseVisibility() {
+                const licenseInput = document.getElementById('license-code');
+                const toggleButton = document.getElementById('toggle-visibility-btn');
+                if (licenseInput.type === "password") {
+                    licenseInput.type = "text";
+                    toggleButton.textContent = "????";
+                } else {
+                    licenseInput.type = "password";
+                    toggleButton.textContent = "????";
+                }
+            }
+
+            function enableToolFeatures() {
+                document.querySelector('.header-info').classList.remove('hidden');
+                document.querySelector('.agenda-section').classList.remove('hidden');
+                document.querySelector('.input-section').classList.remove('hidden');
+                document.querySelector('.table-section').classList.remove('hidden');
+                document.querySelector('#result-buttons').classList.remove('hidden');
+                document.querySelector('#final-result-btn').classList.remove('hidden');
+            }
+
+            function addAgendaItem() {
+                if (!checkCredits()) return;
+                const agendaSection = document.getElementById('agenda-items');
+                const agendaItemInput = document.createElement('input');
+                agendaItemInput.type = 'text';
+                agendaItemInput.placeholder = 'Agendapunt';
+                agendaSection.appendChild(agendaItemInput);
+                agendaItems.push(agendaItemInput);
+                deductCredit();
+            }
+
+            function processFile() {
+                if (!checkCredits()) return;
+                const fileUpload = document.getElementById('file-upload').files[0];
+                if (!fileUpload) {
+                    alert("Geen bestand geselecteerd.");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const lines = text.split('\n').map(line => line.split(',')).filter(line => line[0].trim() !== "");
+
+                    // Sorteer de gegevens op basis van het appartementnummer (kolom 0)
+                    lines.sort((a, b) => a[0].localeCompare(b[0], undefined, {numeric: true}));
+
+                    sessionStorage.setItem('ownersData', JSON.stringify(lines));
+                    generateTable(lines);
+                    generateResultButtons();  // Roep de knoppen-generatiefunctie aan
+                    deductCredit();
+                };
+
+                reader.readAsText(fileUpload);
+            }
+
+            function generateTable(ownersData) {
+                let ownerTable = '<table><tr><th>Appartement</th><th>Naam</th><th>Aandelen</th>';
+                agendaItems.forEach((item, index) => {
+                    ownerTable += `<th>${item.value}</th>`;
+                });
+                ownerTable += '</tr>';
+
+                ownersData.slice(1).forEach(line => {
+                    ownerTable += `<tr><td>${line[0]}</td><td>${line[1]}</td><td>${line[2]}</td>`;
+                    agendaItems.forEach(() => {
+                        ownerTable += `
+                            <td>
+                                <select>
+                                    <option value="ja">Ja</option>
+                                    <option value="nee">Nee</option>
+                                    <option value="onthouding">Onthouding</option>
+                                </select>
+                            </td>`;
+                    });
+                    ownerTable += '</tr>';
+                });
+                ownerTable += '</table>';
+
+                document.getElementById('table-section').innerHTML = ownerTable;
+            }
+
+            function generateResultButtons() {
+                const resultSection = document.getElementById('result-buttons');
+                resultSection.innerHTML = '';
+                
+                agendaItems.forEach((item, index) => {
+                    const buttonDiv = document.createElement('div');
+                    buttonDiv.innerHTML = `
+                        <label for="distribution-key">Agendapunt ${item.value}: </label>
+                        <select class="distribution-key">
+                            <option value="50">Volstrekte meerderheid (50%=1)</option>
+                            <option value="75">3/4</option>
+                            <option value="80">4/5</option>
+                        </select>
+                        <button onclick="showResult(${index})">Toon Resultaat</button>
+                    `;
+                    resultSection.appendChild(buttonDiv);
+                });
+                resultSection.classList.remove('hidden');
+            }
+
+            function showResult(index) {
+                if (!checkCredits()) return;
+                const ownersData = JSON.parse(sessionStorage.getItem('ownersData'));
+                const distributionKey = document.querySelectorAll('.distribution-key')[index].value;
+
+                let totalShares = 0;
+                let yesVotes = 0;
+                let noVotes = 0;
+                let noVoters = [];
+                
+                const rows = document.querySelectorAll('#table-section table tr');
+                rows.forEach((row, rowIndex) => {
+                    if (rowIndex === 0) return;
+
+                    const shares = parseInt(row.children[2].innerText); // Aandelen index 2
+                    const vote = row.children[index + 3].querySelector('select').value;
+
+                    if (vote === 'ja') {
+                        yesVotes += shares;
+                    } else if (vote === 'nee') {
+                        noVotes += shares;
+                        noVoters.push(`${row.children[0].innerText} (${row.children[1].innerText})`); // Voeg appartementnummer en naam toe
+                    }
+
+                    if (vote !== 'onthouding') {
+                        totalShares += shares;
+                    }
+                });
+
+                const requiredShares = (distributionKey / 100) * totalShares;
+                let result = yesVotes >= requiredShares ? "Goedgekeurd" : "Niet Goedgekeurd";
+                const yesPercentage = ((yesVotes / totalShares) * 100).toFixed(2);
+                const noPercentage = ((noVotes / totalShares) * 100).toFixed(2);
+
+                alert(`Resultaat voor agendapunt ${agendaItems[index].value}: ${result}. 
+                Ja-stemmen: ${yesVotes} (${yesPercentage}%), 
+                Nee-stemmen: ${noVotes} (${noPercentage}%), 
+                Totaal aandelen: ${totalShares}. 
+                Eigenaars die 'nee' stemden: ${noVoters.join(', ')}`);
+                deductCredit();
+            }
+
+            function generateFinalResult() {
+                if (!checkCredits()) return;
+                let finalResult = "Eindresultaten van alle agendapunten:\n";
+                agendaItems.forEach((item, index) => {
+                    const ownersData = JSON.parse(sessionStorage.getItem('ownersData'));
+                    const distributionKey = document.querySelectorAll('.distribution-key')[index].value;
+
+                    let totalShares = 0;
+                    let yesVotes = 0;
+                    let noVotes = 0;
+                    let noVoters = [];
+                    
+                    const rows = document.querySelectorAll('#table-section table tr');
+                    rows.forEach((row, rowIndex) => {
+                        if (rowIndex === 0) return;
+
+                        const shares = parseInt(row.children[2].innerText); // Aandelen index 2
+                        const vote = row.children[index + 3].querySelector('select').value;
+
+                        if (vote === 'ja') {
+                            yesVotes += shares;
+                        } else if (vote === 'nee') {
+                            noVotes += shares;
+                            noVoters.push(`${row.children[0].innerText} (${row.children[1].innerText})`); // Voeg appartementnummer en naam toe
+                        }
+
+                        if (vote !== 'onthouding') {
+                            totalShares += shares;
+                        }
+                    });
+
+                    const requiredShares = (distributionKey / 100) * totalShares;
+                    let result = yesVotes >= requiredShares ? "Goedgekeurd" : "Niet Goedgekeurd";
+                    const yesPercentage = ((yesVotes / totalShares) * 100).toFixed(2);
+                    const noPercentage = ((noVotes / totalShares) * 100).toFixed(2);
+
+                    finalResult += `Agendapunt ${item.value}: ${result}. \nJa-stemmen: ${yesVotes} (${yesPercentage}%), Nee-stemmen: ${noVotes} (${noPercentage}%), Totaal aandelen: ${totalShares}. Eigenaars die 'nee' stemden: ${noVoters.join(', ')}\n\n`;
+                });
+                generatePDF(finalResult);
+                deductCredit();
+            }
+
+            function generatePDF(content) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text(content, 10, 10);
+                doc.save("eindresultaat.pdf");
+            }
+
+            function checkCredits() {
+                if (currentUser && currentUser.credits > 0) {
+                    return true;
+                } else {
+                    alert('Geen credits meer beschikbaar. Neem contact op om meer credits te verkrijgen.');
+                    return false;
+                }
+            }
+
+            function deductCredit() {
+                if (currentUser) {
+                    currentUser.credits--;
+                    localStorage.setItem('users', JSON.stringify(users));
+                    document.getElementById('license-status').textContent = `Credits over: ${currentUser.credits}`;
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
