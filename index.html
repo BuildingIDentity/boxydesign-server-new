@@ -41,11 +41,40 @@
         button:hover {
             background-color: #003d52;
         }
+        nav {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #004d66;
+            font-weight: bold;
+        }
+        nav ul li a:hover {
+            color: #003d52;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Admin Credits Beheer - Boxydesign</h1>
+
+        <!-- Navigatiebalk -->
+        <nav>
+            <ul>
+                <li><a href="/quorum">Quorum Pagina</a></li>
+                <li><a href="/stemmen">Stemmen Pagina</a></li>
+                <li><a href="/credits">Credits Pagina (alleen voor admin)</a></li>
+            </ul>
+        </nav>
 
         <!-- Admin Login -->
         <div class="admin-login" id="adminLogin">
