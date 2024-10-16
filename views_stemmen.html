@@ -77,14 +77,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
 <body>
- <!-- Navigatiebalk -->
-    <nav>
-    <a href="#" onclick="showTab('home')">Hoofdpagina</a>
-    <a href="#" onclick="showTab('quorum')">Quorum Pagina</a>
-    <a href="#" onclick="showTab('stemmen')">Stemmen Pagina</a>
-    <a href="#" onclick="showTab('credits')">Credits Pagina (Admin)</a>
-</nav>
-
     <div class="container">
         <h1>Boxydesign Stemming op Agendapunten</h1>
 
@@ -363,11 +355,7 @@
                     document.getElementById('license-status').textContent = `Credits over: ${currentUser.credits}`;
                 }
             }
-        <script>
-    function showTab(page) {
-        window.location.href = page;
-    }
-</script>
+        </script>
     </div>
 </body>
 </html>
