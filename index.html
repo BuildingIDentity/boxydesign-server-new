@@ -3,182 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boxydesign Algemene Vergadering</title>
+    <title>Boxydesign Algemene Vergadering - Welkom</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
         }
         .container {
             width: 60%;
-            margin: 0 auto;
+            margin: 50px auto;
+            background-color: #fff;
             padding: 20px;
-            background-color: white;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #004d66;
+        }
+        a {
+            display: block;
+            margin: 20px 0;
+            text-decoration: none;
+            font-weight: bold;
+            color: #004d66;
+            padding: 10px;
+            background-color: #e0f7fa;
             border-radius: 8px;
         }
-        h1, h2 {
-            color: #004d66;
-            text-align: center;
-        }
-        input[type="text"], input[type="password"], input[type="number"] {
-            padding: 10px;
-            font-size: 16px;
-            width: 60%;
-            margin-bottom: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #004d66;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #003d52;
-        }
-        nav {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin: 0 15px;
-        }
-        nav ul li a {
-            text-decoration: none;
-            color: #004d66;
-            font-weight: bold;
-        }
-        nav ul li a:hover {
-            color: #003d52;
-        }
-        .tab-content {
-            display: none;
+        a:hover {
+            background-color: #b2ebf2;
         }
     </style>
 </head>
 <body>
-    <!-- Navigatiebalk -->
-    <nav>
-        <ul>
-            <li><a href="#" onclick="showTab('credits')">Credits Beheer (Admin)</a></li>
-            <li><a href="#" onclick="showTab('quorum')">Quorum Pagina</a></li>
-            <li><a href="#" onclick="showTab('stemmen')">Stemmen Pagina</a></li>
-        </ul>
-    </nav>
-
     <div class="container">
-        <h1>Boxydesign Algemene Vergadering</h1>
-
-        <!-- Credits Beheer -->
-        <div id="credits" class="tab-content">
-            <h2>Admin Credits Beheer</h2>
-            <div class="admin-login" id="adminLogin">
-                <input type="text" id="adminUsername" placeholder="Gebruikersnaam">
-                <input type="password" id="adminPassword" placeholder="Wachtwoord">
-                <button onclick="adminLogin()">Inloggen</button>
-                <p id="adminLoginMessage"></p>
-            </div>
-            <div class="admin-container" id="adminContainer" style="display: none;">
-                <label for="adminLicenseCode">Licentiecode:</label><br>
-                <input type="text" id="adminLicenseCode" placeholder="Licentiecode"><br>
-                <label for="newCredits">Nieuwe Credits:</label><br>
-                <input type="number" id="newCredits" placeholder="Aantal nieuwe credits"><br>
-                <button onclick="updateCredits()">Update Credits</button>
-                <p id="adminMessage"></p>
-            </div>
-        </div>
-
-        <!-- Quorum Pagina -->
-        <div id="quorum" class="tab-content">
-            <h2>Quorum Berekeningen</h2>
-            <input type="text" id="licentiecodeQuorum" placeholder="Licentiecode">
-            <button onclick="verifieerLicentie('quorum')">Verifieer Licentie</button>
-            <p id="quorumMessage"></p>
-            <!-- Voeg hier extra quorumfunctionaliteiten toe -->
-        </div>
-
-        <!-- Stemmen Pagina -->
-        <div id="stemmen" class="tab-content">
-            <h2>Stemmen op Agendapunten</h2>
-            <input type="text" id="licentiecodeStemmen" placeholder="Licentiecode">
-            <button onclick="verifieerLicentie('stemmen')">Verifieer Licentie</button>
-            <p id="stemmenMessage"></p>
-            <!-- Voeg hier extra stemfunctionaliteiten toe -->
-        </div>
+        <h1>Boxydesign Algemene Vergadering - Welkom</h1>
+        <p>Kies een van de volgende tools om verder te gaan:</p>
+        <a href="views_quorum.html">Quorum Tool</a>
+        <a href="views_stemmen.html">Stemmen Tool</a>
+        <a href="views_credits.html">Credits Beheer (Admin)</a>
     </div>
-
-    <script>
-        let users = JSON.parse(localStorage.getItem('users')) || {
-            'ABC123': { credits: 5 },
-            'DEF456': { credits: 3 },
-            'GHI789': { credits: 10 }
-        };
-        let currentUser = null;
-
-        // Functie om tabs te laten zien
-        function showTab(tabId) {
-            // Verberg alle tab-content elementen
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.style.display = 'none');
-
-            // Toon de gekozen tab
-            document.getElementById(tabId).style.display = 'block';
-        }
-
-        // Admin login functie
-        function adminLogin() {
-            const adminUsername = "peter@boxydesign.be";
-            const adminPassword = "@477Proximus";
-            const username = document.getElementById('adminUsername').value;
-            const password = document.getElementById('adminPassword').value;
-            const message = document.getElementById('adminLoginMessage');
-
-            if (username === adminUsername && password === adminPassword) {
-                document.getElementById('adminLogin').style.display = 'none';
-                document.getElementById('adminContainer').style.display = 'block';
-            } else {
-                message.textContent = 'Ongeldige gebruikersnaam of wachtwoord.';
-            }
-        }
-
-        // Functie om credits bij te werken
-        function updateCredits() {
-            const licenseCode = document.getElementById('adminLicenseCode').value;
-            const newCredits = parseInt(document.getElementById('newCredits').value);
-            const message = document.getElementById('adminMessage');
-
-            if (users[licenseCode]) {
-                if (newCredits >= 0) {
-                    users[licenseCode].credits = newCredits;
-                    localStorage.setItem('users', JSON.stringify(users));
-                    message.textContent = `Credits voor licentie ${licenseCode} zijn bijgewerkt naar ${newCredits}.`;
-                } else {
-                    message.textContent = 'Voer een geldig aantal credits in.';
-                }
-            } else {
-                message.textContent = 'Ongeldige licentiecode.';
-            }
-        }
-
-        // Functie om licentie te verifiëren
-        function verifieerLicentie(tab) {
-            const licenseCode = document.getElementById(`licentiecode${tab.charAt(0).toUpperCase() + tab.slice(1)}`).value;
-            const message = document.getElementById(`${tab}Message`);
-
-            if (users[licenseCode] && users[licenseCode].credits > 0) {
-                users[licenseCode].credits--;
-                localStorage.setItem('users', JSON.stringify(users));
-                message.textContent = `Licentie geldig. Credits over: ${users[licenseCode].credits}.`;
-            } else {
-                message.textContent = 'Ongeldige licentie of geen credits meer beschikbaar.';
-            }
-        }
-    </script>
 </body>
 </html>
