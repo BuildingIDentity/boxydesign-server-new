@@ -56,4 +56,20 @@ app.post('/api/credits', (req, res) => {
     if (users[licenseCode]) {
       users[licenseCode].credits = newCredits;
 
-      fs.writeFile
+      fs.writeFile(creditsFilePath, JSON.stringify(users, null, 2), (err) => {
+        if (err) {
+          res.status(500).json({ message: 'Kon de gegevens niet opslaan.' });
+        } else {
+          res.json({ success: true, message: 'Credits bijgewerkt.' });
+        }
+      });
+    } else {
+      res.status(400).json({ message: 'Ongeldige licentiecode.' });
+    }
+  });
+});
+
+// Start de server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
