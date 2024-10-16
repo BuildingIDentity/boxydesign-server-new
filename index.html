@@ -42,9 +42,15 @@
     <div class="container">
         <h1>Boxydesign Algemene Vergadering - Navigatie</h1>
         <p>Kies een van de volgende tools om verder te gaan:</p>
-        <a href="./views_quorum.html">Quorum Tool</a>
-        <a href="./views_stemmen.html">Stemmen Tool</a>
-        <a href="./views_credits.html">Credits Beheer (Admin)</a>
+        <a href="#" onclick="showTab('views_quorum.html')">Quorum Tool</a>
+        <a href="#" onclick="showTab('views_stemmen.html')">Stemmen Tool</a>
+        <a href="#" onclick="showTab('views_credits.html')">Credits Beheer (Admin)</a>
     </div>
+
+    <script>
+        function showTab(page) {
+            window.location.href = page;
+        }
+    </script>
 </body>
 </html>
