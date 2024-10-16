@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Credits Beheer - Boxydesign</title>
+    <title>Boxydesign Algemene Vergadering</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,13 +17,12 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
-        h1 {
+        h1, h2 {
             color: #004d66;
             text-align: center;
         }
-        .admin-login, .admin-container {
-            text-align: center;
-            margin-top: 20px;
+        .tab-content {
+            display: none;
         }
         input[type="text"], input[type="password"], input[type="number"] {
             padding: 10px;
@@ -64,35 +63,65 @@
     </style>
 </head>
 <body>
- <!-- Navigatiebalk -->
+    <!-- Navigatiebalk -->
     <nav>
-    <a href="#" onclick="showTab('home')">Hoofdpagina</a>
-    <a href="#" onclick="showTab('quorum')">Quorum Pagina</a>
-    <a href="#" onclick="showTab('stemmen')">Stemmen Pagina</a>
-    <a href="#" onclick="showTab('credits')">Credits Pagina (Admin)</a>
-</nav>
+        <ul>
+            <li><a href="#" onclick="showTab('home')">Hoofdpagina</a></li>
+            <li><a href="#" onclick="showTab('quorum')">Quorum Pagina</a></li>
+            <li><a href="#" onclick="showTab('stemmen')">Stemmen Pagina</a></li>
+            <li><a href="#" onclick="showTab('credits')">Credits Pagina (Admin)</a></li>
+        </ul>
+    </nav>
 
     <div class="container">
-        <h1>Admin Credits Beheer - Boxydesign</h1>
+        <h1>Boxydesign Algemene Vergadering</h1>
 
-        <!-- Admin Login -->
-        <div class="admin-login" id="adminLogin">
-            <h2>Admin Inloggen</h2>
-            <input type="text" id="adminUsername" placeholder="Gebruikersnaam">
-            <input type="password" id="adminPassword" placeholder="Wachtwoord">
-            <button onclick="adminLogin()">Inloggen</button>
-            <p id="adminLoginMessage"></p>
+        <!-- Hoofdpagina -->
+        <div id="home" class="tab-content" style="display: block;">
+            <h2>Welkom bij de Boxydesign Algemene Vergadering</h2>
+            <p>Gebruik de navigatie om naar de gewenste sectie te gaan.</p>
+        </div>
+
+        <!-- Quorum Pagina -->
+        <div id="quorum" class="tab-content">
+            <h2>Quorum Pagina</h2>
+            <p>Hier kunt u de quorumvereisten berekenen voor de vergadering.</p>
+            <p>Credits over: <span id="creditsCount">0</span></p>
+            <!-- Voeg hier quorum functionaliteit toe -->
+            <button onclick="useCredit()">Gebruik Credit voor Berekening</button>
+            <p id="quorumMessage"></p>
+        </div>
+
+        <!-- Stemmen Pagina -->
+        <div id="stemmen" class="tab-content">
+            <h2>Stemmen Pagina</h2>
+            <p>Hier kunt u stemmen op de agendapunten van de vergadering.</p>
+            <p>Credits over: <span id="creditsCount">0</span></p>
+            <!-- Voeg hier stemfunctionaliteit toe -->
+            <button onclick="useCredit()">Gebruik Credit voor Stemmen</button>
+            <p id="stemmenMessage"></p>
         </div>
 
         <!-- Admin Credits Beheer -->
-        <div class="admin-container" id="adminContainer" style="display: none;">
-            <h2>Update Gebruikerscredits</h2>
-            <label for="adminLicenseCode">Licentiecode:</label><br>
-            <input type="text" id="adminLicenseCode" placeholder="Licentiecode"><br>
-            <label for="newCredits">Nieuwe Credits:</label><br>
-            <input type="number" id="newCredits" placeholder="Aantal nieuwe credits"><br>
-            <button onclick="updateCredits()">Update Credits</button>
-            <p id="adminMessage"></p>
+        <div id="credits" class="tab-content">
+            <h2>Admin Credits Beheer</h2>
+            <div class="admin-login" id="adminLogin">
+                <input type="text" id="adminUsername" placeholder="Gebruikersnaam">
+                <input type="password" id="adminPassword" placeholder="Wachtwoord">
+                <button onclick="adminLogin()">Inloggen</button>
+                <p id="adminLoginMessage"></p>
+            </div>
+
+            <!-- Admin Credits Beheer -->
+            <div class="admin-container" id="adminContainer" style="display: none;">
+                <h2>Update Gebruikerscredits</h2>
+                <label for="adminLicenseCode">Licentiecode:</label><br>
+                <input type="text" id="adminLicenseCode" placeholder="Licentiecode"><br>
+                <label for="newCredits">Nieuwe Credits:</label><br>
+                <input type="number" id="newCredits" placeholder="Aantal nieuwe credits"><br>
+                <button onclick="updateCredits()">Update Credits</button>
+                <p id="adminMessage"></p>
+            </div>
         </div>
     </div>
 
@@ -103,10 +132,28 @@
             'DEF456': { credits: 3 },
             'GHI789': { credits: 10 }
         };
+        let currentUser = null;
 
         // Admin inloggegevens
         const adminUsername = "peter@boxydesign.be";
         const adminPassword = "@477Proximus";
+
+        // Functie om tabs te laten zien
+        function showTab(tabId) {
+            // Verberg alle tab-content elementen
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.style.display = 'none');
+
+            // Toon de gekozen tab
+            document.getElementById(tabId).style.display = 'block';
+
+            // Update credits info als de gebruiker is ingelogd
+            if (currentUser) {
+                document.querySelectorAll('#creditsCount').forEach(span => {
+                    span.textContent = currentUser.credits;
+                });
+            }
+        }
 
         // Admin login functie
         function adminLogin() {
@@ -138,6 +185,24 @@
                 }
             } else {
                 message.textContent = 'Ongeldige licentiecode.';
+            }
+        }
+
+        // Functie om een credit te gebruiken
+        function useCredit() {
+            if (currentUser) {
+                if (currentUser.credits > 0) {
+                    currentUser.credits--;
+                    localStorage.setItem('users', JSON.stringify(users));
+                    document.querySelectorAll('#creditsCount').forEach(span => {
+                        span.textContent = currentUser.credits;
+                    });
+                    alert('Credit gebruikt. Credits over: ' + currentUser.credits);
+                } else {
+                    alert('Geen credits meer beschikbaar. Neem contact op met Boxydesign voor extra credits.');
+                }
+            } else {
+                alert('Geen gebruiker ingelogd.');
             }
         }
     </script>
