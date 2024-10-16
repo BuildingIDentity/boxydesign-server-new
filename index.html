@@ -20,29 +20,62 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            color: #004d66;
+        .tab {
+            display: none;
         }
-        .link-button {
-            display: block;
-            padding: 15px;
-            margin: 10px 0;
+        .tab-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .tab-buttons button {
+            padding: 10px;
             background-color: #004d66;
             color: white;
-            text-decoration: none;
-            border-radius: 5px;
+            border: none;
+            cursor: pointer;
         }
-        .link-button:hover {
+        .tab-buttons button:hover {
             background-color: #003d52;
+        }
+        .active-tab {
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Boxydesign Tool</h1>
-        <a href="views_credits.html" class="link-button">Admin Credits Beheer</a>
-        <a href="views_quorum.html" class="link-button">Algemene Vergadering</a>
-        <a href="views_stemmen.html" class="link-button">Stemming op Agendapunten</a>
+        <div class="tab-buttons">
+            <button onclick="showTab('credits')">Admin Credits Beheer</button>
+            <button onclick="showTab('quorum')">Algemene Vergadering</button>
+            <button onclick="showTab('stemmen')">Stemming op Agendapunten</button>
+        </div>
+        <div id="credits" class="tab active-tab">
+            <h2>Admin Credits Beheer</h2>
+            <!-- Inhoud van views_credits.html -->
+            <p>Hier komt de inhoud van de Admin Credits Beheer tool.</p>
+        </div>
+        <div id="quorum" class="tab">
+            <h2>Algemene Vergadering</h2>
+            <!-- Inhoud van views_quorum.html -->
+            <p>Hier komt de inhoud van de Algemene Vergadering tool.</p>
+        </div>
+        <div id="stemmen" class="tab">
+            <h2>Stemming op Agendapunten</h2>
+            <!-- Inhoud van views_stemmen.html -->
+            <p>Hier komt de inhoud van de Stemming op Agendapunten tool.</p>
+        </div>
     </div>
+    <script>
+        function showTab(tabId) {
+            // Verberg alle tabbladen
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active-tab');
+            });
+            // Toon de geselecteerde tab
+            document.getElementById(tabId).classList.add('active-tab');
+        }
+    </script>
 </body>
 </html>
