@@ -3,47 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boxydesign Algemene Vergadering</title>
+    <title>Admin Credits Beheer - Boxydesign</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
         }
         .container {
-            width: 80%;
+            width: 60%;
             margin: 0 auto;
             padding: 20px;
             background-color: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
-        h1, h2 {
+        h1 {
             color: #004d66;
             text-align: center;
         }
-        nav {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+        .admin-login, .admin-container {
+            text-align: center;
+            margin-top: 20px;
         }
-        nav a {
-            padding: 10px;
-            background-color: #004d66;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        nav a:hover {
-            background-color: #003d52;
-        }
-        .tab-content {
-            display: none;
-        }
-        .active {
-            display: block;
-        }
-        input[type="text"], input[type="password"], input[type="file"], input[type="number"] {
+        input[type="text"], input[type="password"], input[type="number"] {
             padding: 10px;
             font-size: 16px;
             width: 60%;
@@ -59,71 +41,75 @@
         button:hover {
             background-color: #003d52;
         }
-    </style>
-    <script>
-        function showTab(tabId) {
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+        nav {
+            text-align: center;
+            margin-bottom: 20px;
         }
-    </script>
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #004d66;
+            font-weight: bold;
+        }
+        nav ul li a:hover {
+            color: #003d52;
+        }
+    </style>
 </head>
 <body>
+ <!-- Navigatiebalk -->
+    <nav>
+    <a href="#" onclick="showTab('home')">Hoofdpagina</a>
+    <a href="#" onclick="showTab('quorum')">Quorum Pagina</a>
+    <a href="#" onclick="showTab('stemmen')">Stemmen Pagina</a>
+    <a href="#" onclick="showTab('credits')">Credits Pagina (Admin)</a>
+</nav>
+
     <div class="container">
-        <h1>Boxydesign Algemene Vergadering</h1>
-        <!-- Navigatiebalk -->
-        <nav>
-            <a href="#" onclick="showTab('tab-home')">Hoofdpagina</a>
-            <a href="#" onclick="showTab('tab-quorum')">Quorum Pagina</a>
-            <a href="#" onclick="showTab('tab-stemmen')">Stemmen Pagina</a>
-        </nav>
+        <h1>Admin Credits Beheer - Boxydesign</h1>
 
-        <!-- Hoofdpagina -->
-        <div id="tab-home" class="tab-content active">
-            <h2>Welkom bij de Boxydesign Algemene Vergadering Tool</h2>
-            <p>Gebruik de navigatie om de gewenste sectie te openen.</p>
-        </div>
-
-        <!-- Quorum Pagina -->
-        <div id="tab-quorum" class="tab-content">
-            <h2>Quorumberekeningen</h2>
-            <input type="text" id="licentiecode-quorum" placeholder="Licentiecode">
-            <button onclick="verifieerLicentie('quorum')">Verifieer Licentie</button>
-            <p id="message-quorum"></p>
-            <!-- Extra functionaliteit voor quorumberekeningen hier toevoegen -->
-        </div>
-
-        <!-- Stemmen Pagina -->
-        <div id="tab-stemmen" class="tab-content">
-            <h2>Stemmen op Agendapunten</h2>
-            <input type="text" id="licentiecode-stemmen" placeholder="Licentiecode">
-            <button onclick="verifieerLicentie('stemmen')">Verifieer Licentie</button>
-            <p id="message-stemmen"></p>
-            <!-- Extra functionaliteit voor stemmen hier toevoegen -->
-        </div>
-
-        <!-- Credits Pagina -->
-        <div id="tab-credits" class="tab-content">
-            <h2>Beheerder Credits Beheer</h2>
+        <!-- Admin Login -->
+        <div class="admin-login" id="adminLogin">
+            <h2>Admin Inloggen</h2>
             <input type="text" id="adminUsername" placeholder="Gebruikersnaam">
             <input type="password" id="adminPassword" placeholder="Wachtwoord">
             <button onclick="adminLogin()">Inloggen</button>
             <p id="adminLoginMessage"></p>
-            <div id="adminContainer" style="display: none;">
-                <label for="adminLicenseCode">Licentiecode:</label><br>
-                <input type="text" id="adminLicenseCode" placeholder="Licentiecode"><br>
-                <label for="newCredits">Nieuwe Credits:</label><br>
-                <input type="number" id="newCredits" placeholder="Aantal nieuwe credits"><br>
-                <button onclick="updateCredits()">Update Credits</button>
-                <p id="adminMessage"></p>
-            </div>
+        </div>
+
+        <!-- Admin Credits Beheer -->
+        <div class="admin-container" id="adminContainer" style="display: none;">
+            <h2>Update Gebruikerscredits</h2>
+            <label for="adminLicenseCode">Licentiecode:</label><br>
+            <input type="text" id="adminLicenseCode" placeholder="Licentiecode"><br>
+            <label for="newCredits">Nieuwe Credits:</label><br>
+            <input type="number" id="newCredits" placeholder="Aantal nieuwe credits"><br>
+            <button onclick="updateCredits()">Update Credits</button>
+            <p id="adminMessage"></p>
         </div>
     </div>
+
     <script>
-        // Beheerder login functie
+        // Gebruikersgegevens
+        let users = JSON.parse(localStorage.getItem('users')) || {
+            'ABC123': { credits: 5 },
+            'DEF456': { credits: 3 },
+            'GHI789': { credits: 10 }
+        };
+
+        // Admin inloggegevens
+        const adminUsername = "peter@boxydesign.be";
+        const adminPassword = "@477Proximus";
+
+        // Admin login functie
         function adminLogin() {
-            const adminUsername = "peter@boxydesign.be";
-            const adminPassword = "@477Proximus";
             const username = document.getElementById('adminUsername').value;
             const password = document.getElementById('adminPassword').value;
             const message = document.getElementById('adminLoginMessage');
@@ -136,28 +122,22 @@
             }
         }
 
-        // Functie om licentie te verifiëren per tab
-        function verifieerLicentie(tab) {
-            const licenseCode = document.getElementById(`licentiecode-${tab}`).value;
-            const message = document.getElementById(`message-${tab}`);
-            if (licenseCode === 'GELDIGE_CODE') { // Placeholder voor licentiecontrole
-                message.textContent = 'Licentie geldig.';
-                // Functionaliteit om toolopties te activeren
-            } else {
-                message.textContent = 'Ongeldige licentie.';
-            }
-        }
-
         // Functie om credits bij te werken
         function updateCredits() {
             const licenseCode = document.getElementById('adminLicenseCode').value;
             const newCredits = parseInt(document.getElementById('newCredits').value);
             const message = document.getElementById('adminMessage');
 
-            if (newCredits >= 0) {
-                message.textContent = `Credits voor licentie ${licenseCode} zijn bijgewerkt naar ${newCredits}.`;
+            if (users[licenseCode]) {
+                if (newCredits >= 0) {
+                    users[licenseCode].credits = newCredits;
+                    localStorage.setItem('users', JSON.stringify(users));
+                    message.textContent = `Credits voor licentie ${licenseCode} zijn bijgewerkt naar ${newCredits}.`;
+                } else {
+                    message.textContent = 'Voer een geldig aantal credits in.';
+                }
             } else {
-                message.textContent = 'Voer een geldig aantal credits in.';
+                message.textContent = 'Ongeldige licentiecode.';
             }
         }
     </script>
