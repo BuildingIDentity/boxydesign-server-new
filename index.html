@@ -3,79 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boxydesign Tool</title>
+    <title>Boxydesign Navigatie</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
+            text-align: center;
             margin: 0;
             padding: 20px;
-            text-align: center;
         }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .tab {
-            display: none;
-        }
-        .tab-buttons {
+        .tab-menu {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             margin-bottom: 20px;
         }
-        .tab-buttons button {
-            padding: 10px;
+        .tab-menu a {
+            padding: 10px 20px;
             background-color: #004d66;
             color: white;
-            border: none;
-            cursor: pointer;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0 10px;
         }
-        .tab-buttons button:hover {
+        .tab-menu a:hover {
             background-color: #003d52;
-        }
-        .active-tab {
-            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Boxydesign Tool</h1>
-        <div class="tab-buttons">
-            <button onclick="showTab('credits')">Admin Credits Beheer</button>
-            <button onclick="showTab('quorum')">Algemene Vergadering</button>
-            <button onclick="showTab('stemmen')">Stemming op Agendapunten</button>
-        </div>
-        <div id="credits" class="tab active-tab">
-            <h2>Admin Credits Beheer</h2>
-            <!-- Inhoud van views_credits.html -->
-            <p>Hier komt de inhoud van de Admin Credits Beheer tool.</p>
-        </div>
-        <div id="quorum" class="tab">
-            <h2>Algemene Vergadering</h2>
-            <!-- Inhoud van views_quorum.html -->
-            <p>Hier komt de inhoud van de Algemene Vergadering tool.</p>
-        </div>
-        <div id="stemmen" class="tab">
-            <h2>Stemming op Agendapunten</h2>
-            <!-- Inhoud van views_stemmen.html -->
-            <p>Hier komt de inhoud van de Stemming op Agendapunten tool.</p>
-        </div>
+    <h1>Boxydesign Tool Navigatie</h1>
+    <div class="tab-menu">
+        <a href="/credits">Admin Credits Beheer</a>
+        <a href="/quorum">Algemene Vergadering</a>
+        <a href="/stemmen">Stemming op Agendapunten</a>
     </div>
-    <script>
-        function showTab(tabId) {
-            // Verberg alle tabbladen
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active-tab');
-            });
-            // Toon de geselecteerde tab
-            document.getElementById(tabId).classList.add('active-tab');
-        }
-    </script>
+    <p>Klik op een van de tabs om naar de gewenste tool te navigeren.</p>
 </body>
 </html>
