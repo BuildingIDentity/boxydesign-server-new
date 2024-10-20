@@ -1,8 +1,6 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
 const CreditSystem = require('./credits');
 
 const app = express();
@@ -10,13 +8,6 @@ const PORT = process.env.PORT || 3000;
 
 // Gebruik body-parser om JSON-gegevens te verwerken
 app.use(bodyParser.json());
-
-// Configureer lowdb
-const adapter = new FileSync('credits.json');
-const db = low(adapter);
-
-// Stel de standaardwaarden in als credits.json leeg is
-db.defaults({ users: {} }).write();
 
 // Route voor de hoofdpagina
 app.get('/', (req, res) => {
@@ -36,12 +27,6 @@ app.get('/quorum', (req, res) => {
 // Route voor stemmen
 app.get('/stemmen', (req, res) => {
   res.sendFile(path.join(__dirname, 'views_stemmen.html'));
-});
-
-// API-route om credits op te halen
-app.get('/api/credits', (req, res) => {
-  const users = db.get('users').value();
-  res.json(users);
 });
 
 // API-route om credits voor een specifieke gebruiker op te halen
@@ -78,4 +63,22 @@ app.post('/api/credits/:userId/add', async (req, res) => {
 
 // API-route om een credit te gebruiken
 app.post('/api/credits/:userId/use', async (req, res) => {
-  const userId = req.params.userId
+  const userId = req.params.userId;
+  const creditSystem = new CreditSystem(userId);
+
+  try {
+    const success = await creditSystem.useCredit();
+    if (success) {
+      res.json({ message: `Used 1 credit for user ${userId}.` });
+    } else {
+      res.status(400).json({ message: 'No more credits left.' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error using credit', error: error.message });
+  }
+});
+
+// Start de server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
