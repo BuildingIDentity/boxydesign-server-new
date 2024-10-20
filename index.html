@@ -3,40 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boxydesign Navigatie</title>
+    <title>Boxydesign Algemene Vergadering - Navigatie</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
-            text-align: center;
             margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 60%;
+            margin: 50px auto;
+            background-color: #fff;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
-        .tab-menu {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
+        h1 {
+            color: #004d66;
         }
-        .tab-menu a {
-            padding: 10px 20px;
-            background-color: #004d66;
-            color: white;
+        a {
+            display: inline-block;
+            margin: 20px 10px;
+            padding: 15px 25px;
             text-decoration: none;
-            border-radius: 5px;
-            margin: 0 10px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #004d66;
+            border-radius: 8px;
         }
-        .tab-menu a:hover {
+        a:hover {
             background-color: #003d52;
         }
     </style>
 </head>
 <body>
-    <h1>Boxydesign Tool Navigatie</h1>
-    <div class="tab-menu">
-        <a href="/credits">Admin Credits Beheer</a>
-        <a href="/quorum">Algemene Vergadering</a>
-        <a href="/stemmen">Stemming op Agendapunten</a>
+    <div class="container">
+        <h1>Boxydesign Algemene Vergadering - Navigatie</h1>
+        <p>Kies een van de volgende tools om verder te gaan:</p>
+        <a href="#" onclick="showTab('views_quorum.html')">Quorum Tool</a>
+        <a href="#" onclick="showTab('views_stemmen.html')">Stemmen Tool</a>
+        <a href="#" onclick="showTab('views_credits.html')">Credits Beheer (Admin)</a>
     </div>
-    <p>Klik op een van de tabs om naar de gewenste tool te navigeren.</p>
+
+    <script>
+        function showTab(page) {
+            window.location.href = page;
+        }
+    </script>
 </body>
 </html>
